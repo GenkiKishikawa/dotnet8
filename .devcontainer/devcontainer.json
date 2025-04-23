@@ -1,0 +1,18 @@
+{
+  "name": "dotnet8-devcontainer",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".." // ルートをプロジェクト全体に
+  },
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash"
+  },
+  "extensions": [
+    "ms-dotnettools.csharp"
+  ],
+  "forwardPorts": [
+    5000,
+    5001
+  ],
+  "postCreateCommand": "dotnet restore"
+}
