@@ -8,7 +8,8 @@
     "terminal.integrated.defaultProfile.linux": "bash"
   },
   "extensions": [
-    "ms-dotnettools.csharp"
+    "ms-dotnettools.csharp",
+    "GitHub.copilot"
   ],
   "forwardPorts": [
     5000,
