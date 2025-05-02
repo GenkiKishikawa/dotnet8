@@ -66,58 +66,110 @@ namespace MinimalApiSample.Components
             _resultModel = new ResultModel();
         }
 
+        // <inheritdoc />
         public ResultModel GetResult()
         {
             this._resultModel.GeneratedTime = DateTime.Now;
             return _resultModel;
         }
 
+        // <inheritdoc />
         public IResultComponent SetStatus(int status)
         {
             _resultModel.Status = status;
             return this;
         }
 
+        // <inheritdoc />
         public IResultComponent SetMessageId(string messageId)
         {
             _resultModel.MessageId = messageId;
             return this;
         }
 
+        // <inheritdoc />
         public IResultComponent SetMessage(string message)
         {
             _resultModel.Message = message;
             return this;
         }
 
-        public IResultComponent AddShosas(IList<IResultItemModel> shosas)
+        // <inheritdoc />
+        public IResultComponent AddShosas(List<IResultItemModel> shosas)
         {
-            if (_resultModel.Shosas == null)
+            shosas = this.ReplaceUri(shosas);
+
+            if(this._resultModel.Data == null)
             {
-                _resultModel.Shosas = new List<IResultItemModel>();
+                this._resultModel.Data = shosas;
             }
-            foreach (var shosa in shosas)
+            else
             {
-                _resultModel.Shosas.Add(shosa);
+                this._resultModel.Data.AddRange(shosas);
             }
+
             return this;
         }
 
+        // <inheritdoc />
         public List<IResultItemModel> CreateErrorShosas(ItemModel[] items, bool isTimeout)
         {
-            var errorShosas = new List<IResultItemModel>();
-            foreach (var item in items)
+            var shosas = new List<IResultItemModel>();
+            foreach (ItemModel item in items)
             {
-                if (item.IsError)
+                int? count = CountStatus.NotFound;
+                if (item.Default != null)
                 {
-                    errorShosas.Add(new ResultItemModel
-                    {
-                        ItemName = item.ItemName,
-                        ErrorMessage = item.ErrorMessage
-                    });
+                    count = item.DefaultCount;
                 }
+                else if (isTimeout)
+                {
+                    count = CountStatus.NotFound;
+                }
+                else
+                {
+                    count = CountStatus.Error
+                }
+
+                var shosa = new ShosaModel
+                {
+                    id = item.Id,
+                    count = count,
+                    uri = item.Uri
+                };
+                shosas.Add(shosa);
             }
-            return errorShosas;
+            return shosas;
         }
     }
+
+    // <summary>
+    // ランディング遷移URLにある可変部分(ログインユーザ等)を置き換えするオブジェクト
+    // </summary>
+    public class UriReplacer
+    {
+        public string LoginId { get; set; }
+
+        // <summary>
+        // 入力文字列の置き換え対象部分をプロパティで置換する
+        // </summary>
+        // <param name="input">入力文字列</param>
+        // <returns>置換後文字列</returns>
+        public string Replace(string input)
+        {
+            if (input == null)
+            {
+                return null;
+            }
+            Regex re = new Regex(@"\{(\w+)\}", RegexOptions.Compiled);
+            var output = re.Replace(input, match =>
+                {
+                    var pi = this.GetType().GetProperty(match.Groups[1].Value);
+                    return pi.GetValue(this).ToString();
+                }
+            );
+            return output;
+        }
+    }
+
 }

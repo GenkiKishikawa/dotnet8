@@ -1,0 +1,18 @@
+{
+  "Messages": {
+    "RM_API_16_010": "ServiceNow API への問い合わせに失敗しました。[RM_API_16_010]",
+    "RM_API_16_020": "ServiceNow API への問い合わせでタイムアウトが発生しました。[RM_API_16_020]",
+
+    "LM_API_16_010": "ServiceNow API への問い合わせに失敗しました。[LM_API_16_010]{response}",
+    "LM_API_16_020": "ServiceNow API への問い合わせでタイムアウトが発生しました。[LM_API_16_020]{response}",
+    "LM_API_16_030": "ServiceNow API への問い合わせで認証エラーが発生しました。[LM_API_16_030]{response}",
+  },
+  "MessagesEn": {
+    "RM_API_16_010": "Failed to query ServiceNow API. [RM_API_16_010]",
+    "RM_API_16_020": "Timeout occurred while querying ServiceNow API. [RM_API_16_020]",
+
+    "LM_API_16_010": "ServiceNow API への問い合わせに失敗しました。[LM_API_16_010]{response}",
+    "LM_API_16_020": "ServiceNow API への問い合わせでタイムアウトが発生しました。[LM_API_16_020]{response}",
+    "LM_API_16_030": "ServiceNow API への問い合わせで認証エラーが発生しました。[LM_API_16_030]{response}",
+  }
+}
