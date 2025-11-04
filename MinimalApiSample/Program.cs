@@ -1,11 +1,13 @@
+using MinimalApiSample.Log;
 using MinimalApiSample.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-// DIコンテナServiceNowCommonSettingsModelを登録
-builder.Services.Configure<ServiceNowCommonSettingsModel>(builder.Configuration.GetSection("ServiceNowCommonSettings"));
+builder.Services.Configure<ApiCommonSettingsModel>(builder.Configuration.GetSection("ApiCommonSettings"));
+
+builder.Services.AddScoped<IAppLoggerFactory, AppLoggerFactory>();
 
 var app = builder.Build();
 

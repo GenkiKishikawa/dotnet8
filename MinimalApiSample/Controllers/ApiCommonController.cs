@@ -1,15 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MinimalApiSample.Models;
 using MinimalApiSample.Components;
+using MinimalApiSample.Log;
+using Newtonsoft.Json.Linq;
 
 namespace MinimalApiSample.Controllers
 {
-  [Route("api/servicenow_common")]
+  [Route("api/api_common")]
   [ApiController]
-  public class ServiceNowCommonController : ControllerBase
+  public class ApiCommonController : ControllerBase
   {
-    private readonly ServiceNowCommonSettingsModel _settings;
+    private readonly ApiCommonSettingsModel _settings;
 
     private readonly IGraphAPIComponent _graphApi;
 
@@ -21,8 +27,8 @@ namespace MinimalApiSample.Controllers
 
     private readonly AppLogger _appLogger;
 
-    public ServiceNowCommonController(
-      IOptions<ServiceNowCommonSettingsModel> settings,
+    public ApiCommonController(
+      IOptions<ApiCommonSettingsModel> settings,
       IGraphAPIComponent graphApi,
       IResultComponent result,
       IHttpClientFactory clientFactory,
@@ -35,7 +41,7 @@ namespace MinimalApiSample.Controllers
       _result = result;
       _clientFactory = clientFactory;
       _config = config;
-      _appLogger = appLoggerFactory.CreateLogger(typeof(ServiceNowCommonController).FullName);
+      _appLogger = appLoggerFactory.CreateLogger(typeof(ApiCommonController).FullName);
     }
 
     [HttpGet("get")]
