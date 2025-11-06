@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MinimalApiSample.Models;
 using MinimalApiSample.Components;
+using MinimalApiSample.Exceptions;
 using MinimalApiSample.Log;
+using MinimalApiSample.Extensions;
+using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json.Linq;
 
 namespace MinimalApiSample.Controllers
@@ -53,21 +52,21 @@ namespace MinimalApiSample.Controllers
         // プリンシパル名の取得
         var upn = _graphApi.GetUpn(HttpContext.Request);
         // ログインIDの取得
-        var loginId = await _graphApi.GetLoginId(upn);
+        var userId = await _graphApi.GetUserIdAsync(upn);
 
         Request.Headers.TryGetValue("Accept-Language", out var lang);
         this._appLogger.properties = new AppLoggerProperties
         {
-          UserId = loginId,
+          UserId = userId,
           upn = upn
         };
 
         // APIを実行して、APIから件数を含むレスポンスを取得
-        HttpResponseMessage response = await this.GetResponseAsync(loginId, lang);
+        HttpResponseMessage response = await this.GetResponseAsync(userId, lang);
         // 件数情報
-        var shosas = await this. GenerateShosaListAsync(response, lang);
+        var shosas = await this.GenerateShosaListAsync(response, lang);
 
-        return this._result.GetResult()
+        return this._result.GetResult();
       }
       catch (AppException ex)
       {
@@ -84,17 +83,17 @@ namespace MinimalApiSample.Controllers
         this._result
             .AddShosas(this._result.CreateErrorShosas(this._settings.Items, false))
             .SetStatus(ApiStatus.Error)
-            .SetMessageId(ex.messageId)
+            .SetMessageId(ex.messageId);
 
         return this._result.GetResult();
       }
     }
 
-    private async Task<HttpResponseMessage> GetResponseAsync(string loginId, string lang)
+    private async Task<HttpResponseMessage> GetResponseAsync(string userId, string lang)
     {
       try
       {
-        var url = QueryHelpers.AddQueryString(_settings.ServiceNowCommonUrl, "employee_number", loginId);
+        var url = QueryHelpers.AddQueryString(_settings.ShosaUrl_ApiCommon, "employee_number", userId);
         var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Add("ContentType", "application/json; charset=utf-8" );
         request.Headers.Add("Ocp-Apim-Subscription-Key", _settings.SubscriptionKey1);
@@ -125,11 +124,11 @@ namespace MinimalApiSample.Controllers
         {
           var logMsg = (lang == "en") ? this._config.GetValue<string>("MessagesEn:LM_API_16_010") : this._config.GetValue<string>("Messages:LM_API_16_010");
           var logRes = "\r\n" + await response.ToLogStringAsync();
-          this._appLogger.Error("Error",logMsg, logRes);
+          this._appLogger.Write("Error", logMsg, logRes);
           throw new AppException
           {
             messageId = "LM_API_16_020",
-          }
+          };
         }
 
         return response;
@@ -138,8 +137,7 @@ namespace MinimalApiSample.Controllers
       catch (Exception ex) when (ex is HttpRequestException || ex is OperationCanceledException)
       {
         var logMsg = (lang == "en") ? this._config.GetValue<string>("MessagesEn:LM_API_16_020") : this._config.GetValue<string>("Messages:LM_API_16_020");
-        var logRes = "\r\n" + ex.ToLogString();
-        this._appLogger.Error("Error",logMsg, logRes);
+        this._appLogger.Write("Error", logMsg, "");
         throw new AppException
         {
           messageId = "LM_API_16_020",
@@ -150,7 +148,6 @@ namespace MinimalApiSample.Controllers
     private async Task<List<IResultItemModel>> GenerateShosaListAsync(HttpResponseMessage response, string lang)
     {
       var shosas = new List<IResultItemModel>();
-      var count = 0;
 
       // レスポンスからJSONを取得
       var json = await response.Content.ReadAsStringAsync();

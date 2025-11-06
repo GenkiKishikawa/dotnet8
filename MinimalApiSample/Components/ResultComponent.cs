@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MinimalApiSample.Models;
 
@@ -31,21 +29,21 @@ namespace MinimalApiSample.Components
         // </summary>
         // <param name="messageId">メッセージID</param>
         // <returns>本オブジェクト</returns>
-        IResultComponent SetMessageId(string messageId);
+        IResultComponent SetMessageId(string? messageId);
 
         // <summary>
         // メッセージセッター
         // </summary>
         // <param name="message">メッセージ</param>
         // <returns>本オブジェクト</returns>
-        IResultComponent SetMessage(string message);
+        IResultComponent SetMessage(string? message);
 
         // <summary>
         // 内部で保持している照査項目リストに項目リストを追加する。
         // </summary>
         // <param name="shosas">照査項目リスト</param>
         // <returns>本オブジェクト</returns>
-        IResultComponent AddShosas(IList<IResultItemModel> shosas);
+        IResultComponent AddShosas(List<IResultItemModel> shosas);
 
         // <summary>
         // エラー照査項目リストを作成する
@@ -81,14 +79,14 @@ namespace MinimalApiSample.Components
         }
 
         // <inheritdoc />
-        public IResultComponent SetMessageId(string messageId)
+        public IResultComponent SetMessageId(string? messageId)
         {
             _resultModel.MessageId = messageId;
             return this;
         }
 
         // <inheritdoc />
-        public IResultComponent SetMessage(string message)
+        public IResultComponent SetMessage(string? message)
         {
             _resultModel.Message = message;
             return this;
@@ -118,7 +116,7 @@ namespace MinimalApiSample.Components
             foreach (ItemModel item in items)
             {
                 int? count = CountStatus.NotFound;
-                if (item.Default != null)
+                if (item.DefaultCount != null)
                 {
                     count = item.DefaultCount;
                 }
@@ -128,7 +126,7 @@ namespace MinimalApiSample.Components
                 }
                 else
                 {
-                    count = CountStatus.Error
+                    count = CountStatus.Error;
                 }
 
                 var shosa = new ShosaModel
@@ -141,6 +139,22 @@ namespace MinimalApiSample.Components
             }
             return shosas;
         }
+
+        private List<IResultItemModel> ReplaceUri(List<IResultItemModel> shosas)
+        {
+            if (this.UriReplacer == null)
+            {
+                return shosas;
+            }
+
+            for (var i = 0; i < shosas.Count; i++)
+            {
+                var shosa = shosas[i];
+                shosa.uri = this.UriReplacer.replace(shosa.uri);
+                shosas[i] = shosa;
+            }
+            return shosas;
+        }
     }
 
     // <summary>
@@ -148,14 +162,14 @@ namespace MinimalApiSample.Components
     // </summary>
     public class UriReplacer
     {
-        public string LoginId { get; set; }
+        public string UserId { get; set; }
 
         // <summary>
         // 入力文字列の置き換え対象部分をプロパティで置換する
         // </summary>
         // <param name="input">入力文字列</param>
         // <returns>置換後文字列</returns>
-        public string Replace(string input)
+        public string replace(string input)
         {
             if (input == null)
             {

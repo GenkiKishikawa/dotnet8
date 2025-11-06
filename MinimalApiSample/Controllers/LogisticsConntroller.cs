@@ -8,6 +8,7 @@ using HtmlAgilityPack;
 using System.Net;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text.RegularExpressions;
+using MinimalApiSample.Extensions;
 
 namespace MinimalApiSample.Controllers
 {
@@ -48,17 +49,15 @@ namespace MinimalApiSample.Controllers
 
     [HttpGet]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public async Task<ActionResult<ResultModel>> Get([FromQuery] string upn = null)
+    public async Task<ActionResult<ResultModel>> Get([FromQuery(Name = "upn")] string? upnParam = null)
     {
       try
       {
-        if (string.IsNullOrEmpty(upn))
-        {
-          upn = this._graphApi.GetUpn(HttpContext.Request);
-        }
+        var upn = string.IsNullOrEmpty(upnParam) 
+          ? this._graphApi.GetUpn(HttpContext.Request)
+          : upnParam;
         var userId = await this._graphApi.GetUserIdAsync(upn);
 
-        Request.Headers.TryGetValue("Accept-Language", out var lang);
         this._appLogger.properties = new AppLoggerProperties
         {
           UserId = userId,
@@ -122,7 +121,7 @@ namespace MinimalApiSample.Controllers
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
           var logMsg = this._config.GetValue<string>("Messages:RM_API_17_020");
-          var logRes = "\r\n" + await response.Content.ReadAsStringAsync();
+          var logRes = "\r\n" + await response.ToLogStringAsync();
           this._appLogger.Write("Error", logMsg, logRes);
 
           throw new AppException
@@ -134,7 +133,7 @@ namespace MinimalApiSample.Controllers
         if (response.StatusCode != HttpStatusCode.OK)
         {
           var logMsg = this._config.GetValue<string>("Messages:RM_API_17_010");
-          var logRes = "\r\n" + await response.Content.ReadAsStringAsync();
+          var logRes = "\r\n" + await response.ToLogStringAsync();
           this._appLogger.Write("Error", logMsg, logRes);
           throw new AppException
           {
@@ -214,7 +213,7 @@ namespace MinimalApiSample.Controllers
         return null;
       }
 
-      Match match = CountRegex().Match(td2.InnerText);
+      Match match = CountRegex.Match(td2.InnerText);
       int? count = match.Success ? int.Parse(match.Groups[1].Value) : null;
 
       return count;
