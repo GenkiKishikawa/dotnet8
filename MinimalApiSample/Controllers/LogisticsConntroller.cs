@@ -49,7 +49,7 @@ namespace MinimalApiSample.Controllers
 
     [HttpGet]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public async Task<ActionResult<ResultModel>> Get([FromQuery(Name = "upn")] string? upnParam = null)
+    public async Task<ActionResult<ResultModel>> Get([FromQuery(Name = "upn")] string upnParam = null)
     {
       try
       {

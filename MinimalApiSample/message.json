@@ -9,6 +9,11 @@
     "LM_API_16_010": "Common API への問い合わせに失敗しました。[LM_API_16_010]{response}",
     "LM_API_16_020": "Common API への問い合わせでタイムアウトが発生しました。[LM_API_16_020]{response}",
     "LM_API_16_030": "Common API への問い合わせで認証エラーが発生しました。[LM_API_16_030]{response}",
+
+    "RM_API_100_010": "upnパラメータが不正です。[RM_API_100_010]",
+    "RM_API_100_011": "group_idパラメータで指定した{invalidParam}が不正です。[RM_API_100_020]",
+    "RM_API_100_020": "MyDesk向けWebAPIの内部処理でエラーが発生しました。[RM_API_100_020] DateTime: {DateTime}, Log: {ErrorLog}",
+    "RM_API_110_010": "MyDesk向けWebAPIから照査件数API({groupId})への問い合わせに失敗しました。[RM_API_110_010]"
   },
   "MessagesEn": {
     "RM_API_16_010": "Failed to query Common API. [RM_API_16_010]",
@@ -16,6 +21,6 @@
 
     "LM_API_16_010": "Failed to query Common API. [LM_API_16_010]{response}",
     "LM_API_16_020": "Timeout occurred while querying Common API. [LM_API_16_020]{response}",
-    "LM_API_16_030": "Authentication error occurred while querying Common API. [LM_API_16_030]{response}",
+    "LM_API_16_030": "Authentication error occurred while querying Common API. [LM_API_16_030]{response}"
   }
 }

@@ -5,4 +5,9 @@ namespace MinimalApiSample.Exceptions
   {
     public string messageId { get; set; }
   }
+
+  public class InvalidParamAppException : AppException
+  {
+    public string invalidParam { get; set; }
+  }
 }
